@@ -14,31 +14,108 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import SearchModal, { Location, SportOption, sportOptions } from "@/components/ui/search-modal";
+
+// SportDropdown component for landing page search bar
+const SportDropdown = ({
+  selectedSport,
+  onSportChange,
+  isOpen,
+  onToggle
+}: {
+  selectedSport: SportOption;
+  onSportChange: (sport: SportOption) => void;
+  isOpen: boolean;
+  onToggle: () => void;
+}) => {
+  return (
+    <div className="relative">
+      {/* Sport Pill Button */}
+      <button
+        onClick={onToggle}
+        className="flex items-center gap-2 bg-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.2)] transition-colors duration-200 rounded-full px-3 py-1.5 text-sm font-['Archivo'] font-medium text-[#ffffff]"
+      >
+        <span>{selectedSport.icon}</span>
+        <span>{selectedSport.name}</span>
+        <motion.svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          className="text-[#cbcbd2]"
+          animate={{
+            rotate: isOpen ? 180 : 0
+          }}
+          transition={{ duration: 0.2 }}
+        >
+          <path
+            d="M3 4.5L6 7.5L9 4.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </motion.svg>
+      </button>
+
+      {/* Dropdown Menu */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: -10 }}
+        animate={{
+          opacity: isOpen ? 1 : 0,
+          scale: isOpen ? 1 : 0.95,
+          y: isOpen ? 0 : -10
+        }}
+        transition={{ duration: 0.2 }}
+        className={`absolute top-full right-0 mt-2 bg-[rgba(255,255,255,0.15)] backdrop-blur-[25px] rounded-lg overflow-hidden shadow-lg border border-[rgba(255,255,255,0.1)] z-50 ${
+          isOpen ? 'pointer-events-auto' : 'pointer-events-none'
+        }`}
+        style={{ minWidth: '150px' }}
+      >
+        {sportOptions.map((sport) => (
+          <button
+            key={sport.id}
+            onClick={() => {
+              onSportChange(sport);
+              onToggle();
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-left font-['Archivo'] font-medium text-sm transition-colors duration-200 ${
+              selectedSport.id === sport.id
+                ? 'bg-[rgba(255,255,255,0.2)] text-[#ffffff]'
+                : 'text-[#cbcbd2] hover:bg-[rgba(255,255,255,0.1)] hover:text-[#ffffff]'
+            }`}
+          >
+            <span className="text-base">{sport.icon}</span>
+            <span>{sport.name}</span>
+          </button>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
 
 // ========================================
 // ASSET CONSTANTS
-// ========================================
-// All actual ski photos and images from Figma design
-const heroImages = {
-  img1: "/assets/images/ski-bg-1.png",
-  img2: "/assets/images/ski-bg-2.png", 
-  img3: "/assets/images/ski-bg-3.png",
-  img4: "/assets/images/ski-bg-4.png",
-  img5: "/assets/images/ski-bg-5.png",
-  img6: "/assets/images/ski-bg-6.png",
-};
+// Images referenced by Figma design (commented out as unused)
+// const heroImages = {
+//   img1: "/assets/images/ski-bg-1.png",
+//   img2: "/assets/images/ski-bg-2.png", 
+//   img3: "/assets/images/ski-bg-3.png",
+//   img4: "/assets/images/ski-bg-4.png",
+//   img5: "/assets/images/ski-bg-5.png",
+//   img6: "/assets/images/ski-bg-6.png",
+// };
 
-const sectionImages = {
-  section1: "/assets/images/content-section-1.png",
-  section2: "/assets/images/content-section-2.png",
-};
+// const sectionImages = {
+//   section1: "/assets/images/content-section-1.png",
+//   section2: "/assets/images/content-section-2.png",
+// };
 
-// Instructor profile photos for step 2 card
-const instructorImages = [
-  "/assets/images/instructor-1.png",
-  "/assets/images/instructor-2.png",
-  "/assets/images/instructor-3.png",
-];
+// const instructorImages = [
+//   "/assets/images/instructor-1.png",
+//   "/assets/images/instructor-2.png",
+//   "/assets/images/instructor-3.png",
+// ];
 
 // ========================================
 // CUSTOM COMPONENTS
@@ -54,32 +131,34 @@ const instructorImages = [
 // - Actual checkmark icon from Figma
 // ========================================
 
-interface CheckboxProps {
-  checked?: boolean;
-  onChange?: () => void;
-  label: string;
-}
+// Unused interface (commented out)
+// interface CheckboxProps {
+//   checked?: boolean;
+//   onChange?: () => void;
+//   label: string;
+// }
 
-function CustomCheckbox({ checked = false, onChange, label }: CheckboxProps) {
-  return (
-    <motion.div 
-      className="bg-[#222225] flex items-center gap-3 px-5 py-3 rounded-lg cursor-pointer shadow-[2px_2px_50px_0px_rgba(0,0,0,0.5)]"
-      onClick={onChange}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <div className={cn(
-        "w-4 h-4 rounded border flex items-center justify-center",
-        checked ? "bg-white" : "bg-[#313135]"
-      )}>
-        {checked && (
-          <img src="/assets/icons/checkmark.svg" alt="Check" className="w-3 h-3" />
-        )}
-      </div>
-      <span className="text-white text-sm font-medium font-archivo tracking-[0.07px]">{label}</span>
-    </motion.div>
-  );
-}
+// Custom checkbox component (commented out as unused)
+// function CustomCheckbox({ checked = false, onChange, label }: CheckboxProps) {
+//   return (
+//     <motion.div 
+//       className="bg-[#222225] flex items-center gap-3 px-5 py-3 rounded-lg cursor-pointer shadow-[2px_2px_50px_0px_rgba(0,0,0,0.5)]"
+//       onClick={onChange}
+//       whileHover={{ scale: 1.02 }}
+//       whileTap={{ scale: 0.98 }}
+//     >
+//       <div className={cn(
+//         "w-4 h-4 rounded border flex items-center justify-center",
+//         checked ? "bg-white" : "bg-[#313135]"
+//       )}>
+//         {checked && (
+//           <img src="/assets/icons/checkmark.svg" alt="Check" className="w-3 h-3" />
+//         )}
+//       </div>
+//       <span className="text-white text-sm font-medium font-archivo tracking-[0.07px]">{label}</span>
+//     </motion.div>
+//   );
+// }
 
 // ========================================
 // TOGGLE SWITCH COMPONENT
@@ -136,41 +215,6 @@ function ToggleSwitch({ isLeft, onToggle, leftLabel, rightLabel }: ToggleSwitchP
   );
 }
 
-// ========================================
-// FILTER CHIP COMPONENT
-// ========================================
-// Interactive filter buttons for search section
-// Features:
-// - Sport-specific icons from Figma
-// - Active/inactive states
-// - Hover animations
-// ========================================
-
-interface FilterChipProps {
-  label: string;
-  icon?: React.ReactNode;
-  isActive?: boolean;
-  onClick?: () => void;
-}
-
-function FilterChip({ label, icon, isActive = false, onClick }: FilterChipProps) {
-  return (
-    <motion.button
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-2 px-3 py-1 rounded-full text-sm font-light transition-all duration-200 font-archivo tracking-[0.07px]",
-        isActive 
-          ? "bg-white text-[#0d0d0f]" 
-          : "bg-[#25252b] text-white border border-[rgba(255,255,255,0.01)]"
-      )}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      {icon && <span className="flex items-center justify-center">{icon}</span>}
-      <span>{label}</span>
-    </motion.button>
-  );
-}
 
 // ========================================
 // STEP CARD COMPONENT
@@ -224,20 +268,24 @@ export default function EnhancedRavenLanding() {
   // COMPONENT STATE
   // ========================================
   const [isForAdventurers, setIsForAdventurers] = useState(true); // Toggle switch state
-  const [activeFilter, setActiveFilter] = useState("All sports"); // Active filter chip
   const [scrollOpacity, setScrollOpacity] = useState(1); // Background fade opacity
-  const [checkboxStates, setCheckboxStates] = useState({ // Step 3 card checkboxes
-    telemark: true,
-    offPiste: false,
-    skiTouring: true,
-  });
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); // Search modal state
+  const [searchValue, setSearchValue] = useState(""); // Search input value
+  const [selectedSport, setSelectedSport] = useState<SportOption>(sportOptions[0]); // Selected sport for search
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Sport dropdown state
+  // Unused state for checkboxes (commented out)
+  // const [checkboxStates, setCheckboxStates] = useState({ // Step 3 card checkboxes
+  //   telemark: true,
+  //   offPiste: false,
+  //   skiTouring: true,
+  // });
 
-  const toggleCheckbox = (key: keyof typeof checkboxStates) => {
-    setCheckboxStates(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
+  // const toggleCheckbox = (key: keyof typeof checkboxStates) => {
+  //   setCheckboxStates(prev => ({
+  //     ...prev,
+  //     [key]: !prev[key]
+  //   }));
+  // };
 
   // ========================================
   // SCROLL EFFECT FOR BACKGROUND FADE
@@ -245,7 +293,7 @@ export default function EnhancedRavenLanding() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const heroHeight = 1107; // Height of hero section
+      // const heroHeight = 1107; // Height of hero section (unused)
       const fadeStart = 200; // Start fading after 200px scroll
       const fadeEnd = 600; // Complete fade by 600px scroll
       
@@ -263,6 +311,19 @@ export default function EnhancedRavenLanding() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // ========================================
+  // SEARCH MODAL HANDLERS
+  // ========================================
+  const handleSearchClick = () => {
+    setIsSearchModalOpen(true);
+  };
+
+  const handleLocationSelect = (location: Location) => {
+    console.log("Selected location:", location);
+    setIsSearchModalOpen(false);
+    // Here you can handle the selected location (e.g., update state, navigate, etc.)
+  };
 
   return (
     <div className="bg-black min-h-screen text-white">
@@ -336,7 +397,7 @@ export default function EnhancedRavenLanding() {
             </h1>
             {/* Hero Description - Exact Figma specs */}
             <p className="text-[#858585] text-base font-light font-archivo tracking-[0.08px] leading-[22px]">
-              Raven connects you with the world's best ski and snowboard instructors, handpicked for their expertise and local knowledge
+              Raven connects you with the world&apos;s best ski and snowboard instructors, handpicked for their expertise and local knowledge
             </p>
           </motion.div>
 
@@ -345,59 +406,48 @@ export default function EnhancedRavenLanding() {
           {/* Exact Figma specifications */}
           {/* ======================================== */}
           <motion.div 
-            className="bg-[rgba(255,255,255,0.1)] flex items-center px-6 py-4 rounded-[100px] w-full"
+            className="bg-[rgba(255,255,255,0.1)] flex items-center px-6 py-4 rounded-[100px] w-full hover:bg-[rgba(255,255,255,0.15)] transition-colors duration-200"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             {/* Search Icon */}
-            <img src="/assets/icons/search.svg" alt="Search" className="w-6 h-6 shrink-0" />
-            {/* Search Input Field */}
-            <input 
-              type="text" 
-              placeholder="Search for instructors..." 
-              className="flex-1 bg-transparent text-[#9696a5] font-archivo text-base tracking-[0.08px] leading-5 outline-none placeholder:text-[#9696a5] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap ml-4"
-            />
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="w-6 h-6 shrink-0 text-[#9696a5]"
+            >
+              <path
+                d="M21 21L16.5 16.5M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {/* Search Placeholder Text */}
+            <div 
+              className="flex-1 bg-transparent text-[#9696a5] font-archivo text-base tracking-[0.08px] leading-5 min-w-0 overflow-hidden whitespace-nowrap ml-4 cursor-pointer"
+              onClick={handleSearchClick}
+            >
+              Find Instructors
+            </div>
+            
+            {/* Sport Selection Pill */}
+            <div className="flex items-center ml-4" onClick={(e) => e.stopPropagation()}>
+              <SportDropdown
+                selectedSport={selectedSport}
+                onSportChange={setSelectedSport}
+                isOpen={isDropdownOpen}
+                onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+              />
+            </div>
           </motion.div>
 
-          {/* ======================================== */}
-          {/* FILTER CHIPS ROW */}
-          {/* Exact Figma layout and spacing */}
-          {/* ======================================== */}
-          <motion.div 
-            className="flex gap-3 items-start justify-start"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
-            {/* All Sports Filter - Active state */}
-            <FilterChip 
-              label="All sports" 
-              isActive={activeFilter === "All sports"}
-              onClick={() => setActiveFilter("All sports")}
-            />
-            {/* Skiing Filter with Icon */}
-            <FilterChip 
-              label="Skiing" 
-              icon={<img src="/assets/icons/skiing.png" alt="Skiing" className="w-6 h-6" />}
-              isActive={activeFilter === "Skiing"}
-              onClick={() => setActiveFilter("Skiing")}
-            />
-            {/* Snowboarding Filter with Icon */}
-            <FilterChip 
-              label="Snowboarding" 
-              icon={<img src="/assets/icons/snowboarding.png" alt="Snowboarding" className="w-6 h-6" />}
-              isActive={activeFilter === "Snowboarding"}
-              onClick={() => setActiveFilter("Snowboarding")}
-            />
-            {/* Ski-Touring Filter with Icon */}
-            <FilterChip 
-              label="Ski-Touring" 
-              icon={<img src="/assets/icons/ski-touring.png" alt="Ski-Touring" className="w-6 h-6" />}
-              isActive={activeFilter === "Ski-Touring"}
-              onClick={() => setActiveFilter("Ski-Touring")}
-            />
-          </motion.div>
         </div>
       </div>
 
@@ -431,7 +481,7 @@ export default function EnhancedRavenLanding() {
           <div className="absolute left-1/2 top-[318.641px] transform -translate-x-1/2 font-inter font-normal text-[#858585] text-lg text-center leading-[28px] w-[678.452px] h-[79.927px]">
             <p className="mb-0">
               For people who live to chase the extraordinary and venture to places others only dream of. 
-              You don't follow the rules, and neither do we. Push boundaries. Break limits. Reserve with Raven.
+              You don&apos;t follow the rules, and neither do we. Push boundaries. Break limits. Reserve with Raven.
             </p>
           </div>
         </motion.div>
@@ -726,6 +776,17 @@ export default function EnhancedRavenLanding() {
           </div>
         </div>
       </div>
+
+      {/* ======================================== */}
+      {/* SEARCH MODAL */}
+      {/* ======================================== */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        onLocationSelect={handleLocationSelect}
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
+      />
     </div>
   );
 }

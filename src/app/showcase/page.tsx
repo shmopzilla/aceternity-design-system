@@ -2,6 +2,10 @@
 
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
+import { LabelInputContainer } from "@/components/ui/label-input-container";
 import Link from "next/link";
 
 export default function ShowcasePage() {
@@ -165,10 +169,50 @@ export default function ShowcasePage() {
             </div>
           </section>
 
+          {/* Input Components Section */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-semibold mb-4">Input Components</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Standard Input */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Standard Input</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="standard-input">Email</Label>
+                  <Input
+                    id="standard-input"
+                    type="email"
+                    placeholder="Enter your email"
+                  />
+                </div>
+              </div>
+
+              {/* Floating Label Input */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Floating Label Input</h3>
+                <FloatingLabelInput
+                  label="Your Name"
+                  type="text"
+                />
+              </div>
+
+              {/* Input Container Example */}
+              <div className="space-y-4 md:col-span-2">
+                <h3 className="text-lg font-medium">Label Input Container</h3>
+                <LabelInputContainer>
+                  <Label htmlFor="container-input">Message</Label>
+                  <Input
+                    id="container-input"
+                    placeholder="Type your message here..."
+                  />
+                </LabelInputContainer>
+              </div>
+            </div>
+          </section>
+
           {/* Component Categories */}
           <section className="space-y-6">
             <h2 className="text-2xl font-semibold mb-4">Available Component Categories</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
               <div className="p-6 border rounded-lg">
                 <h3 className="font-semibold mb-2">Animations</h3>
                 <ul className="text-sm text-muted-foreground space-y-1">
@@ -187,6 +231,15 @@ export default function ShowcasePage() {
                   <li>• Focus Cards</li>
                   <li>• Expandable Card</li>
                   <li>• Glare Card</li>
+                </ul>
+              </div>
+              <div className="p-6 border rounded-lg">
+                <h3 className="font-semibold mb-2">Forms</h3>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Standard Input</li>
+                  <li>• Floating Label Input</li>
+                  <li>• Label Component</li>
+                  <li>• Input Container</li>
                 </ul>
               </div>
               <div className="p-6 border rounded-lg">

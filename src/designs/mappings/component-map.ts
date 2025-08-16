@@ -85,9 +85,19 @@ export const ACETERNITY_UI_COMPONENTS = {
     'shimmer-button',
     'tailwindcss-buttons'
   ],
+  modals: [
+    'animated-modal',
+    'search-modal'
+  ],
+  loaders: [
+    'loading-spinner',
+    'search-loading-spinner'
+  ],
   forms: [
     'floating-label-input',
-    'label'
+    'input',
+    'label',
+    'label-input-container'
   ],
   navigation: [
     'floating-navbar',
@@ -112,6 +122,10 @@ export function getRecommendedAceternityComponent(figmaNodeName: string, figmaNo
   
   if (lowerName.includes('input') || lowerName.includes('form')) {
     return 'floating-label-input';
+  }
+  
+  if (lowerName.includes('search') || lowerName.includes('modal')) {
+    return 'search-modal';
   }
   
   if (lowerName.includes('background') || lowerName.includes('hero')) {
