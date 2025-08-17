@@ -14,19 +14,23 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
-import SearchModal, { Location, SportOption, sportOptions } from "@/components/ui/search-modal";
+import SearchModal, { Location, SportOption, SportDiscipline, ModalStep, ParticipantCounts } from "@/components/ui/search-modal";
+import { getLocations, getSportOptions, getSportDisciplines } from "@/lib/supabase/database";
+import { fallbackLocations, fallbackSportOptions, fallbackSportDisciplines } from "@/lib/fallback-data";
 
 // SportDropdown component for landing page search bar
 const SportDropdown = ({
   selectedSport,
   onSportChange,
   isOpen,
-  onToggle
+  onToggle,
+  sportOptions = []
 }: {
   selectedSport: SportOption;
   onSportChange: (sport: SportOption) => void;
   isOpen: boolean;
   onToggle: () => void;
+  sportOptions?: SportOption[];
 }) => {
   return (
     <div className="relative">
@@ -271,8 +275,19 @@ export default function EnhancedRavenLanding() {
   const [scrollOpacity, setScrollOpacity] = useState(1); // Background fade opacity
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); // Search modal state
   const [searchValue, setSearchValue] = useState(""); // Search input value
-  const [selectedSport, setSelectedSport] = useState<SportOption>(sportOptions[0]); // Selected sport for search
+  const [selectedSport, setSelectedSport] = useState<SportOption>(fallbackSportOptions[3]); // Selected sport for search - default to "All Sports"
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Sport dropdown state
+  const [modalStep, setModalStep] = useState<ModalStep>('location'); // Modal step state
+  const [selectedLocation, setSelectedLocation] = useState<Location | undefined>(); // Selected location from modal
+  const [selectedSports, setSelectedSports] = useState<string[]>([]); // Selected sports from modal
+  const [participantCounts, setParticipantCounts] = useState<ParticipantCounts>({ adults: 0, teenagers: 0, children: 0 }); // Participant counts
+  
+  // Data fetching state
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [fetchedSportOptions, setFetchedSportOptions] = useState<SportOption[]>([]);
+  const [fetchedSportDisciplines, setFetchedSportDisciplines] = useState<SportDiscipline[]>([]);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [dataError, setDataError] = useState<string | null>(null);
   // Unused state for checkboxes (commented out)
   // const [checkboxStates, setCheckboxStates] = useState({ // Step 3 card checkboxes
   //   telemark: true,
@@ -286,6 +301,87 @@ export default function EnhancedRavenLanding() {
   //     [key]: !prev[key]
   //   }));
   // };
+
+  // ========================================
+  // DATA FETCHING EFFECT
+  // ========================================
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsDataLoading(true);
+      setDataError(null);
+      
+      try {
+        // Fetch all data in parallel
+        const [locationsResult, sportOptionsResult, sportDisciplinesResult] = await Promise.all([
+          getLocations(),
+          getSportOptions(),
+          getSportDisciplines()
+        ]);
+
+        // Handle locations
+        if (locationsResult.error) {
+          console.error('Error fetching locations:', locationsResult.error);
+          setLocations(fallbackLocations);
+        } else if (locationsResult.data) {
+          setLocations(locationsResult.data);
+        } else {
+          setLocations(fallbackLocations);
+        }
+
+        // Handle sport options
+        if (sportOptionsResult.error) {
+          console.error('Error fetching sport options:', sportOptionsResult.error);
+          setFetchedSportOptions(fallbackSportOptions);
+          // Set default sport from fallback data
+          const allSportsOption = fallbackSportOptions.find(option => 
+            option.name.toLowerCase().includes('all') || option.id === 'all-sports'
+          );
+          if (allSportsOption) {
+            setSelectedSport(allSportsOption);
+          } else if (fallbackSportOptions.length > 0) {
+            setSelectedSport(fallbackSportOptions[0]);
+          }
+        } else if (sportOptionsResult.data) {
+          setFetchedSportOptions(sportOptionsResult.data);
+          // Update selected sport to match fetched data if needed
+          const allSportsOption = sportOptionsResult.data.find(option => 
+            option.name.toLowerCase().includes('all') || option.id === 'all-sports'
+          );
+          if (allSportsOption) {
+            setSelectedSport(allSportsOption);
+          } else if (sportOptionsResult.data.length > 0) {
+            setSelectedSport(sportOptionsResult.data[0]);
+          }
+        } else {
+          setFetchedSportOptions(fallbackSportOptions);
+          setSelectedSport(fallbackSportOptions.find(option => option.id === 'all-sports') || fallbackSportOptions[0]);
+        }
+
+        // Handle sport disciplines
+        if (sportDisciplinesResult.error) {
+          console.error('Error fetching sport disciplines:', sportDisciplinesResult.error);
+          setFetchedSportDisciplines(fallbackSportDisciplines);
+        } else if (sportDisciplinesResult.data) {
+          setFetchedSportDisciplines(sportDisciplinesResult.data);
+        } else {
+          setFetchedSportDisciplines(fallbackSportDisciplines);
+        }
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Use fallback data when there's a network or other error
+        setLocations(fallbackLocations);
+        setFetchedSportOptions(fallbackSportOptions);
+        setFetchedSportDisciplines(fallbackSportDisciplines);
+        setSelectedSport(fallbackSportOptions.find(option => option.id === 'all-sports') || fallbackSportOptions[0]);
+        setDataError('Failed to load data. Using fallback data.');
+      } finally {
+        setIsDataLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // ========================================
   // SCROLL EFFECT FOR BACKGROUND FADE
@@ -316,13 +412,40 @@ export default function EnhancedRavenLanding() {
   // SEARCH MODAL HANDLERS
   // ========================================
   const handleSearchClick = () => {
+    setModalStep('location'); // Reset to location step
     setIsSearchModalOpen(true);
   };
 
   const handleLocationSelect = (location: Location) => {
     console.log("Selected location:", location);
+    setSelectedLocation(location);
+    // Advance to the sport selection step
+    setModalStep('sport');
+  };
+
+  const handleSportSelect = (sportIds: string[]) => {
+    console.log("Selected sports:", sportIds);
+    setSelectedSports(sportIds);
+  };
+
+  const handleStepChange = (step: ModalStep) => {
+    console.log("Step changed to:", step);
+    setModalStep(step);
+  };
+
+  const handleParticipantCountsChange = (counts: ParticipantCounts) => {
+    console.log("Participant counts updated:", counts);
+    setParticipantCounts(counts);
+  };
+
+  const handleModalClose = () => {
     setIsSearchModalOpen(false);
-    // Here you can handle the selected location (e.g., update state, navigate, etc.)
+    // Reset modal state when closing
+    setModalStep('location');
+    setSelectedLocation(undefined);
+    setSelectedSports([]);
+    setParticipantCounts({ adults: 0, teenagers: 0, children: 0 });
+    setSearchValue(""); // Reset search field
   };
 
   return (
@@ -406,12 +529,13 @@ export default function EnhancedRavenLanding() {
           {/* Exact Figma specifications */}
           {/* ======================================== */}
           <motion.div 
-            className="bg-[rgba(255,255,255,0.1)] flex items-center px-6 py-4 rounded-[100px] w-full hover:bg-[rgba(255,255,255,0.15)] transition-colors duration-200"
+            className="bg-[rgba(255,255,255,0.1)] flex items-center px-6 py-4 rounded-[100px] w-full hover:bg-[rgba(255,255,255,0.15)] transition-colors duration-200 cursor-pointer"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={handleSearchClick}
           >
             {/* Search Icon */}
             <svg
@@ -430,10 +554,7 @@ export default function EnhancedRavenLanding() {
               />
             </svg>
             {/* Search Placeholder Text */}
-            <div 
-              className="flex-1 bg-transparent text-[#9696a5] font-archivo text-base tracking-[0.08px] leading-5 min-w-0 overflow-hidden whitespace-nowrap ml-4 cursor-pointer"
-              onClick={handleSearchClick}
-            >
+            <div className="flex-1 bg-transparent text-[#9696a5] font-archivo text-base tracking-[0.08px] leading-5 min-w-0 overflow-hidden whitespace-nowrap ml-4">
               Find Instructors
             </div>
             
@@ -444,6 +565,7 @@ export default function EnhancedRavenLanding() {
                 onSportChange={setSelectedSport}
                 isOpen={isDropdownOpen}
                 onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+                sportOptions={fetchedSportOptions.length > 0 ? fetchedSportOptions : fallbackSportOptions}
               />
             </div>
           </motion.div>
@@ -782,10 +904,21 @@ export default function EnhancedRavenLanding() {
       {/* ======================================== */}
       <SearchModal
         isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
+        onClose={handleModalClose}
+        locations={locations}
+        sportOptions={fetchedSportOptions.length > 0 ? fetchedSportOptions : fallbackSportOptions}
+        sportDisciplines={fetchedSportDisciplines.length > 0 ? fetchedSportDisciplines : fallbackSportDisciplines}
         onLocationSelect={handleLocationSelect}
         searchValue={searchValue}
         onSearchChange={setSearchValue}
+        isLoading={isDataLoading}
+        step={modalStep}
+        selectedLocation={selectedLocation}
+        selectedSports={selectedSports}
+        onSportSelect={handleSportSelect}
+        onStepChange={handleStepChange}
+        participantCounts={participantCounts}
+        onParticipantCountsChange={handleParticipantCountsChange}
       />
     </div>
   );

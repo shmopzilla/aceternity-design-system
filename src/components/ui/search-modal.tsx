@@ -3,6 +3,119 @@ import React from "react";
 import { motion } from "motion/react";
 import { SearchLoadingSpinner } from "@/components/ui/loading-spinner";
 
+// Reusable Button Components
+interface ModalButtonProps {
+  onClick: () => void;
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary';
+}
+
+export const ModalButton = ({ onClick, children, variant = 'primary' }: ModalButtonProps) => {
+  const baseClasses = "px-4 py-2.5 rounded-2xl font-['Archivo'] font-medium w-[126px]";
+  const variantClasses = variant === 'primary' 
+    ? "bg-[#ffffff] text-[#0d0d0f]"
+    : "border border-[#ffffff] border-solid bg-transparent text-white";
+
+  return (
+    <motion.button
+      onClick={onClick}
+      className={`${baseClasses} ${variantClasses}`}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {children}
+    </motion.button>
+  );
+};
+
+export const ModalNavigationButtons = ({ 
+  onBack, 
+  onNext, 
+  backLabel = "Back", 
+  nextLabel = "Next" 
+}: {
+  onBack: () => void;
+  onNext: () => void;
+  backLabel?: string;
+  nextLabel?: string;
+}) => {
+  return (
+    <div className="flex justify-between mt-8">
+      <ModalButton onClick={onBack} variant="secondary">
+        {backLabel}
+      </ModalButton>
+      <ModalButton onClick={onNext} variant="primary">
+        {nextLabel}
+      </ModalButton>
+    </div>
+  );
+};
+
+// Reusable Participant Counter Component
+interface ParticipantCounterProps {
+  title: string;
+  description: string;
+  count: number;
+  onIncrement: () => void;
+  onDecrement: () => void;
+  minimumValue?: number;
+  isLast?: boolean;
+}
+
+export const ParticipantCounter = ({ 
+  title, 
+  description, 
+  count, 
+  onIncrement, 
+  onDecrement, 
+  minimumValue = 0,
+  isLast = false 
+}: ParticipantCounterProps) => {
+  const isAtMinimum = count <= minimumValue;
+
+  return (
+    <div className={`flex items-center justify-between py-6 ${!isLast ? 'border-b border-[#3B3B40]' : ''}`}>
+      <div>
+        <div className="font-['Archivo'] font-medium text-white text-lg">
+          {title}
+        </div>
+        <div className="font-['Archivo'] font-light text-[#cbcbd2] text-sm">
+          {description}
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <motion.button
+          onClick={onDecrement}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+            isAtMinimum 
+              ? 'bg-[rgba(255,255,255,0.05)] text-[#666] cursor-not-allowed' 
+              : 'bg-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.2)]'
+          }`}
+          whileHover={!isAtMinimum ? { scale: 1.1 } : {}}
+          whileTap={!isAtMinimum ? { scale: 0.9 } : {}}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 8H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </motion.button>
+        <div className="w-12 text-center font-['Archivo'] font-medium text-white text-xl">
+          {count}
+        </div>
+        <motion.button
+          onClick={onIncrement}
+          className="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.1)] flex items-center justify-center text-white hover:bg-[rgba(255,255,255,0.2)] transition-colors"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 4V12M4 8H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </motion.button>
+      </div>
+    </div>
+  );
+};
+
 // TypeScript interfaces for Supabase integration
 export interface Location {
   id: string;
@@ -23,14 +136,37 @@ export interface SportOption {
   icon: string;
 }
 
+export interface SportDiscipline {
+  id: string;
+  name: string;
+  image_url: string;
+}
+
+export type ModalStep = 'location' | 'sport' | 'participants';
+
+export interface ParticipantCounts {
+  adults: number;
+  teenagers: number;
+  children: number;
+}
+
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   locations?: Location[];
+  sportOptions?: SportOption[];
+  sportDisciplines?: SportDiscipline[];
   onLocationSelect?: (location: Location) => void;
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   isLoading?: boolean;
+  step?: ModalStep;
+  selectedLocation?: Location;
+  selectedSports?: string[];
+  onSportSelect?: (sportIds: string[]) => void;
+  onStepChange?: (step: ModalStep) => void;
+  participantCounts?: ParticipantCounts;
+  onParticipantCountsChange?: (counts: ParticipantCounts) => void;
 }
 
 // Sport options for the dropdown
@@ -424,10 +560,19 @@ export const SearchModal = ({
   isOpen,
   onClose,
   locations = defaultLocations,
+  sportOptions = [],
+  sportDisciplines = [],
   onLocationSelect,
   searchValue = "",
   onSearchChange,
   isLoading = false,
+  step = 'location',
+  selectedLocation,
+  selectedSports = [],
+  onSportSelect,
+  onStepChange,
+  participantCounts = { adults: 2, teenagers: 0, children: 0 },
+  onParticipantCountsChange,
 }: SearchModalProps) => {
   const [internalSearchValue, setInternalSearchValue] = React.useState(searchValue);
   const [isSearching, setIsSearching] = React.useState(false);
@@ -509,83 +654,248 @@ export const SearchModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Modal Container - Exact Figma Specifications */}
-        <div className="bg-[rgba(255,255,255,0.1)] box-border content-stretch flex flex-col gap-[33px] items-start justify-start px-6 sm:px-[54px] py-8 sm:py-12 relative rounded-[60px] backdrop-blur-[25px] backdrop-filter">
+        <div className="bg-[rgba(255,255,255,0.1)] box-border content-stretch flex flex-col gap-[33px] items-start justify-start p-12 relative rounded-[60px] backdrop-blur-[25px] backdrop-filter">
           
           {/* Header Section */}
           <div className="box-border content-stretch flex flex-col gap-2 items-start justify-start p-0 relative shrink-0 w-full">
             <div className="flex flex-col font-['Archivo'] font-medium justify-center leading-[28px] not-italic relative shrink-0 text-[#ffffff] text-[20px] sm:text-[24px] text-left text-nowrap tracking-[0.12px]">
-              Where to?
+              {step === 'location' && 'Where to?'}
+              {step === 'sport' && 'What are you into?'}
+              {step === 'participants' && 'How many participants?'}
             </div>
             
-            {/* Search Input */}
-            <div className="backdrop-blur-[25px] backdrop-filter bg-[rgba(255,255,255,0.1)] relative rounded-lg shrink-0 w-full">
-              <div className="box-border content-stretch flex flex-row gap-4 items-center justify-start overflow-clip pl-4 pr-3 py-0 relative w-full">
-                <input
-                  type="text"
-                  value={internalSearchValue}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="Search destinations..."
-                  className="basis-0 font-['Archivo'] font-light grow leading-[24px] min-h-[52px] min-w-px not-italic relative shrink-0 text-[#cbcbd2] text-[16px] text-left tracking-[0.08px] bg-transparent border-none outline-none placeholder:text-[#cbcbd2]"
-                  autoFocus
-                />
-                <div className="h-[52px] relative shrink-0 w-6 flex items-center justify-center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="text-[#cbcbd2]"
-                  >
-                    <path
-                      d="M21 21L16.5 16.5M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+            {/* Search Input - Only for location step */}
+            {step === 'location' && (
+              <div className="backdrop-blur-[25px] backdrop-filter bg-[rgba(255,255,255,0.1)] relative rounded-lg shrink-0 w-full">
+                <div className="box-border content-stretch flex flex-row gap-4 items-center justify-start overflow-clip pl-4 pr-3 py-0 relative w-full">
+                  <input
+                    type="text"
+                    value={internalSearchValue}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    placeholder="Search destinations..."
+                    className="basis-0 font-['Archivo'] font-light grow leading-[24px] min-h-[52px] min-w-px not-italic relative shrink-0 text-[#cbcbd2] text-[16px] text-left tracking-[0.08px] bg-transparent border-none outline-none placeholder:text-[#cbcbd2]"
+                    autoFocus
+                  />
+                  <div className="h-[52px] relative shrink-0 w-6 flex items-center justify-center">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="text-[#cbcbd2]"
+                    >
+                      <path
+                        d="M21 21L16.5 16.5M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Destinations List */}
+          {/* Step Content */}
           <div className="box-border content-stretch flex flex-col gap-3 items-start justify-start p-0 relative shrink-0 w-full">
-            <div className="font-['Archivo'] font-light leading-[18px] not-italic relative shrink-0 text-[#cbcbd2] text-[14px] text-left tracking-[0.07px]">
-              {internalSearchValue.trim() ? `Results for "${internalSearchValue}"` : "Suggested"}
-            </div>
+            {step === 'location' && (
+              <>
+                <div className="font-['Archivo'] font-light leading-[18px] not-italic relative shrink-0 text-[#cbcbd2] text-[14px] text-left tracking-[0.07px]">
+                  {internalSearchValue.trim() ? `Results for "${internalSearchValue}"` : "Suggested"}
+                </div>
+              </>
+            )}
             
-            {/* Location Cards */}
-            <div className="flex flex-col gap-3 w-full min-h-[200px]">
-              {showLoading ? (
-                <SearchLoadingSpinner />
-              ) : (
+            {step === 'sport' && (
+              <div className="font-['Archivo'] font-light leading-[18px] not-italic relative shrink-0 text-[#cbcbd2] text-[14px] text-left tracking-[0.07px]">
+                Sports and disciplines
+              </div>
+            )}
+            
+            {step === 'participants' && (
+              <div className="font-['Archivo'] font-light leading-[18px] not-italic relative shrink-0 text-[#cbcbd2] text-[14px] text-left tracking-[0.07px]">
+                Set the number of participants
+              </div>
+            )}
+            
+            {/* Step-specific Content */}
+            <div className="flex flex-col gap-3 w-full">
+              {step === 'location' && (
                 <>
-                  {filteredLocations.map((location) => (
-                    <LocationCard
-                      key={location.id}
-                      location={location}
-                      onClick={() => onLocationSelect?.(location)}
-                    />
-                  ))}
-                  
-                  {filteredLocations.length === 0 && !showLoading && (
-                    <div className="text-[#cbcbd2] text-center py-8 font-['Archivo'] font-light">
-                      <p>No destinations found</p>
-                      <p className="text-xs mt-1 opacity-70">Try searching for different terms</p>
-                    </div>
-                  )}
-                  
-                  {internalSearchValue.trim() && filteredLocations.length > 0 && !showLoading && (
-                    <div className="text-[#cbcbd2] text-center text-xs mt-2 opacity-70 font-['Archivo'] font-light">
-                      {totalMatches === filteredLocations.length ? (
-                        `Found ${totalMatches} destination${totalMatches !== 1 ? 's' : ''}`
-                      ) : (
-                        `Showing ${filteredLocations.length} of ${totalMatches} destination${totalMatches !== 1 ? 's' : ''}`
+                  {showLoading ? (
+                    <SearchLoadingSpinner />
+                  ) : (
+                    <>
+                      {filteredLocations.map((location) => (
+                        <LocationCard
+                          key={location.id}
+                          location={location}
+                          onClick={() => onLocationSelect?.(location)}
+                        />
+                      ))}
+                      
+                      {filteredLocations.length === 0 && !showLoading && (
+                        <div className="text-[#cbcbd2] text-center py-8 font-['Archivo'] font-light">
+                          <p>No destinations found</p>
+                          <p className="text-xs mt-1 opacity-70">Try searching for different terms</p>
+                        </div>
                       )}
-                    </div>
+                      
+                      {internalSearchValue.trim() && filteredLocations.length > 0 && !showLoading && (
+                        <div className="text-[#cbcbd2] text-center text-xs mt-2 opacity-70 font-['Archivo'] font-light">
+                          {totalMatches === filteredLocations.length ? (
+                            `Found ${totalMatches} destination${totalMatches !== 1 ? 's' : ''}`
+                          ) : (
+                            `Showing ${filteredLocations.length} of ${totalMatches} destination${totalMatches !== 1 ? 's' : ''}`
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
                 </>
+              )}
+              
+              {step === 'sport' && (
+                <div className="w-full">
+                  {/* Sport Disciplines Pills */}
+                  <div className="flex flex-wrap gap-3 w-full">
+                    {sportDisciplines.map((discipline) => {
+                      const isSelected = selectedSports.includes(discipline.id);
+                      return (
+                        <motion.div
+                          key={discipline.id}
+                          className={`relative h-9 rounded-[500px] shrink-0 cursor-pointer transition-all duration-200 ${
+                            isSelected 
+                              ? 'bg-[#ffffff]' 
+                              : 'bg-[#25252b] hover:bg-[#2a2a31]'
+                          }`}
+                          onClick={() => {
+                            const newSelectedSports = isSelected
+                              ? selectedSports.filter(id => id !== discipline.id)
+                              : [...selectedSports, discipline.id];
+                            onSportSelect?.(newSelectedSports);
+                          }}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="box-border content-stretch flex flex-row gap-2 h-9 items-center justify-center overflow-clip pl-1.5 pr-3 py-1 relative">
+                            <div className="relative shrink-0 size-6">
+                              <img 
+                                alt="" 
+                                className="block max-w-none size-full" 
+                                height="24" 
+                                src={discipline.image_url} 
+                                width="24" 
+                              />
+                            </div>
+                            <div
+                              className={`font-['Archivo'] font-light leading-[18px] not-italic relative shrink-0 text-[14px] text-left text-nowrap tracking-[0.07px] ${
+                                isSelected ? 'text-[#0d0d0f]' : 'text-[#ffffff]'
+                              }`}
+                            >
+                              {discipline.name}
+                            </div>
+                          </div>
+                          <div
+                            aria-hidden="true"
+                            className={`absolute border border-solid inset-0 pointer-events-none rounded-[500px] ${
+                              isSelected ? 'border-[rgba(255,255,255,0.01)]' : 'border-[#3B3B40]'
+                            }`}
+                          />
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Navigation Buttons */}
+                  <ModalNavigationButtons
+                    onBack={() => onStepChange?.('location')}
+                    onNext={() => onStepChange?.('participants')}
+                    backLabel="Back"
+                    nextLabel="Next"
+                  />
+                </div>
+              )}
+              
+              {step === 'participants' && (
+                <div className="w-full">
+                  {/* Participant Counters */}
+                  <div className="space-y-0">
+                    <ParticipantCounter
+                      title="Adults"
+                      description="Older than 16"
+                      count={participantCounts.adults}
+                      onIncrement={() => {
+                        const newCounts = {
+                          ...participantCounts,
+                          adults: participantCounts.adults + 1
+                        };
+                        onParticipantCountsChange?.(newCounts);
+                      }}
+                      onDecrement={() => {
+                        const newCounts = {
+                          ...participantCounts,
+                          adults: Math.max(0, participantCounts.adults - 1)
+                        };
+                        onParticipantCountsChange?.(newCounts);
+                      }}
+                      minimumValue={0}
+                    />
+                    
+                    <ParticipantCounter
+                      title="Teenagers"
+                      description="From 10 to 15"
+                      count={participantCounts.teenagers}
+                      onIncrement={() => {
+                        const newCounts = {
+                          ...participantCounts,
+                          teenagers: participantCounts.teenagers + 1
+                        };
+                        onParticipantCountsChange?.(newCounts);
+                      }}
+                      onDecrement={() => {
+                        const newCounts = {
+                          ...participantCounts,
+                          teenagers: Math.max(0, participantCounts.teenagers - 1)
+                        };
+                        onParticipantCountsChange?.(newCounts);
+                      }}
+                      minimumValue={0}
+                    />
+                    
+                    <ParticipantCounter
+                      title="Children"
+                      description="From 4 to 9"
+                      count={participantCounts.children}
+                      onIncrement={() => {
+                        const newCounts = {
+                          ...participantCounts,
+                          children: participantCounts.children + 1
+                        };
+                        onParticipantCountsChange?.(newCounts);
+                      }}
+                      onDecrement={() => {
+                        const newCounts = {
+                          ...participantCounts,
+                          children: Math.max(0, participantCounts.children - 1)
+                        };
+                        onParticipantCountsChange?.(newCounts);
+                      }}
+                      minimumValue={0}
+                      isLast={true}
+                    />
+                  </div>
+                  
+                  {/* Navigation Buttons */}
+                  <ModalNavigationButtons
+                    onBack={() => onStepChange?.('sport')}
+                    onNext={() => onClose()}
+                    backLabel="Back"
+                    nextLabel="Search"
+                  />
+                </div>
               )}
             </div>
           </div>
