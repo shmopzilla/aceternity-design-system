@@ -167,6 +167,11 @@ interface SearchModalProps {
   onStepChange?: (step: ModalStep) => void;
   participantCounts?: ParticipantCounts;
   onParticipantCountsChange?: (counts: ParticipantCounts) => void;
+  onSearch?: (searchData: {
+    location: Location;
+    sports: string[];
+    participants: ParticipantCounts;
+  }) => void;
 }
 
 // Sport options for the dropdown
@@ -573,9 +578,21 @@ export const SearchModal = ({
   onStepChange,
   participantCounts = { adults: 2, teenagers: 0, children: 0 },
   onParticipantCountsChange,
+  onSearch,
 }: SearchModalProps) => {
   const [internalSearchValue, setInternalSearchValue] = React.useState(searchValue);
   const [isSearching, setIsSearching] = React.useState(false);
+
+  const handleSearchComplete = () => {
+    if (onSearch && selectedLocation) {
+      onSearch({
+        location: selectedLocation,
+        sports: selectedSports,
+        participants: participantCounts
+      });
+    }
+    onClose();
+  };
 
   // Debounced search function
   const debouncedSearch = React.useMemo(() => {
@@ -891,7 +908,7 @@ export const SearchModal = ({
                   {/* Navigation Buttons */}
                   <ModalNavigationButtons
                     onBack={() => onStepChange?.('sport')}
-                    onNext={() => onClose()}
+                    onNext={handleSearchComplete}
                     backLabel="Back"
                     nextLabel="Search"
                   />

@@ -14,9 +14,11 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 import SearchModal, { Location, SportOption, SportDiscipline, ModalStep, ParticipantCounts } from "@/components/ui/search-modal";
 import { getLocations, getSportOptions, getSportDisciplines } from "@/lib/supabase/database";
 import { fallbackLocations, fallbackSportOptions, fallbackSportDisciplines } from "@/lib/fallback-data";
+import { useSearch } from "@/lib/contexts/search-context";
 
 // SportDropdown component for landing page search bar
 const SportDropdown = ({
@@ -269,6 +271,12 @@ function StepCard({ stepNumber, title, description, children }: StepCardProps) {
 
 export default function EnhancedRavenLanding() {
   // ========================================
+  // HOOKS
+  // ========================================
+  const router = useRouter();
+  const { setSearchCriteria } = useSearch();
+
+  // ========================================
   // COMPONENT STATE
   // ========================================
   const [isForAdventurers, setIsForAdventurers] = useState(true); // Toggle switch state
@@ -436,6 +444,29 @@ export default function EnhancedRavenLanding() {
   const handleParticipantCountsChange = (counts: ParticipantCounts) => {
     console.log("Participant counts updated:", counts);
     setParticipantCounts(counts);
+  };
+
+  const handleSearchComplete = (searchData: {
+    location: Location;
+    sports: string[];
+    participants: ParticipantCounts;
+  }) => {
+    console.log("Search completed with data:", searchData);
+    
+    // Set search criteria in context
+    setSearchCriteria({
+      location: searchData.location.name,
+      startDate: "2025-01-19", // Mock dates for now
+      endDate: "2025-01-26",
+      participants: {
+        adults: searchData.participants.adults,
+        children: searchData.participants.teenagers + searchData.participants.children,
+      },
+      sport: searchData.sports.length > 0 ? searchData.sports[0] : undefined,
+    });
+
+    // Navigate to search results
+    router.push('/raven/search');
   };
 
   const handleModalClose = () => {
@@ -919,6 +950,7 @@ export default function EnhancedRavenLanding() {
         onStepChange={handleStepChange}
         participantCounts={participantCounts}
         onParticipantCountsChange={handleParticipantCountsChange}
+        onSearch={handleSearchComplete}
       />
     </div>
   );
