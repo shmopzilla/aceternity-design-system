@@ -129,27 +129,23 @@ export function InstructorProfileCard({
         </div>
 
         {/* Navigation Arrows */}
-        <motion.button
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full backdrop-blur-[10px] bg-[rgba(255,255,255,0.2)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"
+        <button
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full backdrop-blur-[10px] bg-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.3)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20"
           onClick={handlePrevImage}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 12L6 8L10 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </motion.button>
+        </button>
 
-        <motion.button
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full backdrop-blur-[10px] bg-[rgba(255,255,255,0.2)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"
+        <button
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full backdrop-blur-[10px] bg-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.3)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20"
           onClick={handleNextImage}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 12L10 8L6 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </motion.button>
+        </button>
 
         {/* Dot Indicators */}
         <div className="absolute bottom-[17px] left-0 right-0 flex gap-1.5 items-center justify-center z-10">

@@ -608,30 +608,30 @@ export default function EnhancedRavenLanding() {
       {/* HOW IT WORKS SECTION */}
       {/* Exact Figma layout and spacing */}
       {/* ======================================== */}
-      <div className="flex flex-col gap-[400px] items-center justify-start left-1/2 px-0 py-[100px] relative transform -translate-x-1/2 w-[1440px]">
+      <div className="flex flex-col gap-[100px] items-center justify-start left-1/2 px-0 py-[100px] relative transform -translate-x-1/2 w-[1440px]">
         {/* ======================================== */}
         {/* SECTION HEADER */}
         {/* Exact Figma positioning and spacing */}
         {/* ======================================== */}
         <motion.div 
-          className="relative grid grid-cols-[max-content] grid-rows-[max-content] place-items-start"
+          className="flex flex-col items-center gap-8"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
           {/* Section Tag */}
-          <div className="bg-[#111112] flex gap-2.5 items-center justify-center px-5 py-2.5 relative rounded-[30px] ml-[484.93px]">
-            <span className="text-white font-inter font-normal text-base leading-6 text-center whitespaclace-nowrap">How it works</span>
+          <div className="bg-[#111112] flex gap-2.5 items-center justify-center px-5 py-2.5 relative rounded-[30px]">
+            <span className="text-white font-inter font-normal text-base leading-6 text-center whitespace-nowrap">How it works</span>
           </div>
-          {/* Section Title - Exact Figma positioning */}
-          <div className="absolute left-1/2 top-[181.32px] transform -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center font-pp-editorial text-[80px] text-white text-center w-[1112.86px] h-[194.641px]">
-            <p className="leading-[81px]">
+          {/* Section Title */}
+          <div className="flex flex-col justify-center font-pp-editorial text-[80px] text-white text-center max-w-[1112.86px]">
+            <p className="leading-[81px] mb-0">
               Reserve<br />with Raven
             </p>
           </div>
-          {/* Section Description - Exact Figma positioning */}
-          <div className="absolute left-1/2 top-[318.641px] transform -translate-x-1/2 font-inter font-normal text-[#858585] text-lg text-center leading-[28px] w-[678.452px] h-[79.927px]">
+          {/* Section Description */}
+          <div className="font-inter font-normal text-[#858585] text-lg text-center leading-[28px] max-w-[678.452px]">
             <p className="mb-0">
               For people who live to chase the extraordinary and venture to places others only dream of. 
               You don&apos;t follow the rules, and neither do we. Push boundaries. Break limits. Reserve with Raven.
@@ -759,7 +759,7 @@ export default function EnhancedRavenLanding() {
       {/* WHITE CONTENT SECTIONS */}
       {/* Exact Figma layout and spacing */}
       {/* ======================================== */}
-      <div className="absolute bg-white left-1/2 top-[2623px] transform -translate-x-1/2 flex flex-col gap-[140px] h-[2869px] items-center justify-start overflow-hidden pb-0 pt-[140px] px-0 w-[1440px]">
+      <div className="bg-white flex flex-col gap-[140px] items-center justify-start overflow-hidden pt-[140px] pb-[140px] px-0 w-full">
         {/* Section Header */}
         <motion.div 
           className="flex flex-col gap-2.5 items-center justify-start text-[#17171a] text-center w-[664px]"
