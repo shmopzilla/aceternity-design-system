@@ -19,6 +19,7 @@ import SearchModal, { Location, SportOption, SportDiscipline, ModalStep, Partici
 import { getLocations, getSportOptions, getSportDisciplines } from "@/lib/supabase/database";
 import { fallbackLocations, fallbackSportOptions, fallbackSportDisciplines } from "@/lib/fallback-data";
 import { useSearch } from "@/lib/contexts/search-context";
+import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 
 // SportDropdown component for landing page search bar
 const SportDropdown = ({
@@ -275,6 +276,30 @@ export default function EnhancedRavenLanding() {
   // ========================================
   const router = useRouter();
   const { setSearchCriteria } = useSearch();
+
+  // ========================================
+  // INSTRUCTOR DATA FOR TOOLTIPS
+  // ========================================
+  const instructorTooltipData = [
+    {
+      id: 1,
+      name: "Marie Dubois",
+      designation: "Ski Instructor",
+      image: "/assets/images/instructor-1.png",
+    },
+    {
+      id: 2,
+      name: "Luca Romano",
+      designation: "Snowboard Guide",
+      image: "/assets/images/instructor-2.png",
+    },
+    {
+      id: 3,
+      name: "Emma Fischer",
+      designation: "Alpine Expert",
+      image: "/assets/images/instructor-3.png",
+    },
+  ];
 
   // ========================================
   // COMPONENT STATE
@@ -681,21 +706,11 @@ export default function EnhancedRavenLanding() {
               {/* Image Container */}
               <div className="bg-zinc-800 flex gap-3 h-[117px] items-center justify-start pl-3 pr-5 py-0 rounded-[500px] w-[279px]">
                 {/* Image Container with overlapping photos */}
-                <div className="flex gap-[5px] h-[83px] items-center justify-start w-60">
-                  <div className="flex h-[113px] items-center justify-start pl-0 pr-7 py-0">
-                    {/* Overlapping Instructor Photos - Exact spacing */}
-                    <div className="relative w-[83.278px] h-[83.278px] mr-[-28px]">
-                      <img src="/assets/images/instructor-1.png" alt="Instructor" className="w-full h-full rounded-full object-cover" />
-                    </div>
-                    <div className="relative w-[83.278px] h-[83.278px] mr-[-28px]">
-                      <img src="/assets/images/instructor-2.png" alt="Instructor" className="w-full h-full rounded-full object-cover" />
-                    </div>
-                    <div className="relative w-[83.278px] h-[83.278px] mr-[-28px]">
-                      <img src="/assets/images/instructor-3.png" alt="Instructor" className="w-full h-full rounded-full object-cover" />
-                    </div>
+                <div className="flex h-[83px] items-center justify-center w-60">
+                  <div className="flex items-center justify-center">
+                    {/* Animated Tooltip Instructor Photos */}
+                    <AnimatedTooltip items={instructorTooltipData} />
                   </div>
-                  {/* +2 Text */}
-                  <span className="text-white text-[26px] font-medium font-archivo tracking-[0.13px] leading-[1.4]">+2</span>
                 </div>
               </div>
               
