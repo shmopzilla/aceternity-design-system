@@ -122,7 +122,7 @@ export function InstructorProfileCard({
         {/* Price Badge - Top Right */}
         <div className="absolute top-[15.5px] right-[15px] z-10">
           <div className="backdrop-blur-[10px] backdrop-filter bg-white rounded-lg px-1 py-2 h-5 flex items-center justify-center">
-            <span className="font-['Archivo'] font-medium text-[12px] text-[#0d0d0f] leading-[16px] tracking-[0.06px]">
+            <span className="font-['Archivo'] font-medium text-[14px] text-[#0d0d0f] leading-[16px] tracking-[0.06px]">
               €{instructor.priceHourlyEuros}/h
             </span>
           </div>
