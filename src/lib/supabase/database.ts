@@ -1,251 +1,161 @@
-import { supabase } from './client';
+import { getSupabaseClient } from './client'
+import type { SupabaseResponse } from './types'
 
-export interface Database {
-  public: {
-    Tables: {
-      users: {
-        Row: {
-          id: string;
-          email: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          email: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          email?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      locations: {
-        Row: {
-          id: string;
-          name: string;
-          country: string;
-          country_code: string;
-          average_price: number;
-          image_url: string;
-          description: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          country: string;
-          country_code: string;
-          average_price: number;
-          image_url: string;
-          description?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          country?: string;
-          country_code?: string;
-          average_price?: number;
-          image_url?: string;
-          description?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      sport_options: {
-        Row: {
-          id: string;
-          name: string;
-          icon: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          icon: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          icon?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      sport_disciplines: {
-        Row: {
-          id: string;
-          name: string;
-          image_url: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          image_url: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          image_url?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-    };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
-  };
+export async function getTables(): Promise<SupabaseResponse<string[]>> {
+  const supabase = getSupabaseClient()
+  if (!supabase) {
+    return { data: null, error: new Error('Supabase not configured') }
+  }
+
+  try {
+    // Get table list from REST API schema
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return { data: null, error: new Error('Missing Supabase credentials') }
+    }
+    
+    const schemaUrl = `${supabaseUrl}/rest/v1/?apikey=${supabaseKey}`
+    const response = await fetch(schemaUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'apikey': supabaseKey
+      }
+    })
+    
+    if (!response.ok) {
+      return { data: null, error: new Error(`REST API request failed: ${response.status}`) }
+    }
+    
+    const schema = await response.json()
+    const tableNames = schema.definitions ? Object.keys(schema.definitions) : []
+    
+    return { data: tableNames, error: null }
+  } catch (error) {
+    return { data: null, error: error as Error }
+  }
 }
 
-export async function getUsers() {
+export async function getTableData<T = any>(tableName: string, limit = 10): Promise<SupabaseResponse<T[]>> {
+  const supabase = getSupabaseClient()
   if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: null, error: new Error('Supabase not configured') }
   }
-  
-  const { data, error } = await supabase
-    .from('users')
-    .select('*');
-  
-  return { data, error };
+
+  try {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('*')
+      .limit(limit)
+
+    if (error) {
+      return { data: null, error }
+    }
+
+    return { data: data as T[], error: null }
+  } catch (error) {
+    return { data: null, error: error as Error }
+  }
 }
 
-export async function getUserById(id: string) {
+export async function getTableSchema(tableName: string): Promise<SupabaseResponse<any[]>> {
+  const supabase = getSupabaseClient()
   if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: null, error: new Error('Supabase not configured') }
   }
-  
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', id)
-    .single();
-  
-  return { data, error };
+
+  try {
+    // Get schema info from REST API
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return { data: null, error: new Error('Missing Supabase credentials') }
+    }
+    
+    const schemaUrl = `${supabaseUrl}/rest/v1/?apikey=${supabaseKey}`
+    const response = await fetch(schemaUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'apikey': supabaseKey
+      }
+    })
+    
+    if (!response.ok) {
+      return { data: null, error: new Error(`REST API request failed: ${response.status}`) }
+    }
+    
+    const schema = await response.json()
+    const tableSchema = schema.definitions?.[tableName]
+    
+    if (!tableSchema || !tableSchema.properties) {
+      return { data: [], error: null }
+    }
+    
+    const columns = Object.entries(tableSchema.properties).map(([name, def]: [string, any]) => ({
+      column_name: name,
+      data_type: def.type || 'unknown',
+      is_nullable: !tableSchema.required?.includes(name)
+    }))
+    
+    return { data: columns, error: null }
+  } catch (error) {
+    return { data: null, error: error as Error }
+  }
 }
 
-export async function createUser(user: Database['public']['Tables']['users']['Insert']) {
+export async function getTableCount(tableName: string): Promise<SupabaseResponse<number>> {
+  const supabase = getSupabaseClient()
   if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: 0, error: new Error('Supabase not configured') }
   }
-  
-  const { data, error } = await supabase
-    .from('users')
-    .insert(user)
-    .select()
-    .single();
-  
-  return { data, error };
+
+  try {
+    const { count, error } = await supabase
+      .from(tableName)
+      .select('*', { count: 'exact', head: true })
+
+    if (error) {
+      return { data: 0, error }
+    }
+
+    return { data: count || 0, error: null }
+  } catch (error) {
+    return { data: 0, error: error as Error }
+  }
 }
 
-export async function updateUser(id: string, updates: Database['public']['Tables']['users']['Update']) {
-  if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
+export async function getAllTableStats(): Promise<SupabaseResponse<{ name: string; count: number }[]>> {
+  const tablesResult = await getTables()
+  if (tablesResult.error || !tablesResult.data) {
+    return { data: null, error: tablesResult.error }
   }
-  
-  const { data, error } = await supabase
-    .from('users')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
-  
-  return { data, error };
+
+  const tables = tablesResult.data
+  const stats: { name: string; count: number }[] = []
+
+  for (const table of tables) {
+    const countResult = await getTableCount(table)
+    stats.push({
+      name: table,
+      count: countResult.data || 0
+    })
+  }
+
+  return { data: stats, error: null }
 }
 
-export async function deleteUser(id: string) {
+export async function testConnection(): Promise<SupabaseResponse<boolean>> {
+  const supabase = getSupabaseClient()
   if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
+    return { data: false, error: new Error('Supabase not configured') }
   }
-  
-  const { data, error } = await supabase
-    .from('users')
-    .delete()
-    .eq('id', id);
-  
-  return { data, error };
-}
 
-// Location functions
-export async function getLocations() {
-  if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
+  try {
+    const tablesResult = await getTables()
+    return { data: !tablesResult.error, error: tablesResult.error }
+  } catch (error) {
+    return { data: false, error: error as Error }
   }
-  
-  const { data, error } = await supabase
-    .from('locations')
-    .select('*')
-    .order('name');
-  
-  return { data, error };
-}
-
-export async function getLocationById(id: string) {
-  if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
-  }
-  
-  const { data, error } = await supabase
-    .from('locations')
-    .select('*')
-    .eq('id', id)
-    .single();
-  
-  return { data, error };
-}
-
-export async function searchLocations(query: string) {
-  if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
-  }
-  
-  const { data, error } = await supabase
-    .from('locations')
-    .select('*')
-    .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
-    .order('name')
-    .limit(6);
-  
-  return { data, error };
-}
-
-// Sport Options functions
-export async function getSportOptions() {
-  if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
-  }
-  
-  const { data, error } = await supabase
-    .from('sport_options')
-    .select('*')
-    .order('name');
-  
-  return { data, error };
-}
-
-// Sport Disciplines functions
-export async function getSportDisciplines() {
-  if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
-  }
-  
-  const { data, error } = await supabase
-    .from('sport_disciplines')
-    .select('*')
-    .order('name');
-  
-  return { data, error };
 }

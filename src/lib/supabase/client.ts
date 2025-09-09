@@ -1,11 +1,24 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+let _supabase: any = null
+let _initialized = false
 
-// Only create client if environment variables are available
-export const supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+export function getSupabaseClient() {
+  if (_initialized) return _supabase
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  
+  _supabase = supabaseUrl && supabaseAnonKey 
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null
+    
+  _initialized = true
+  return _supabase
+}
 
-export type { User } from '@supabase/supabase-js';
+// Don't initialize immediately - wait for environment to be loaded
+export const supabase = null
+
+export default supabase

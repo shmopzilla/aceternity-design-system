@@ -16,7 +16,6 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import SearchModal, { Location, SportOption, SportDiscipline, ModalStep, ParticipantCounts } from "@/components/ui/search-modal";
-import { getLocations, getSportOptions, getSportDisciplines } from "@/lib/supabase/database";
 import { fallbackLocations, fallbackSportOptions, fallbackSportDisciplines } from "@/lib/fallback-data";
 import { useSearch } from "@/lib/contexts/search-context";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
@@ -343,74 +342,12 @@ export default function EnhancedRavenLanding() {
       setIsDataLoading(true);
       setDataError(null);
       
-      try {
-        // Fetch all data in parallel
-        const [locationsResult, sportOptionsResult, sportDisciplinesResult] = await Promise.all([
-          getLocations(),
-          getSportOptions(),
-          getSportDisciplines()
-        ]);
-
-        // Handle locations
-        if (locationsResult.error) {
-          console.error('Error fetching locations:', locationsResult.error);
-          setLocations(fallbackLocations);
-        } else if (locationsResult.data) {
-          setLocations(locationsResult.data);
-        } else {
-          setLocations(fallbackLocations);
-        }
-
-        // Handle sport options
-        if (sportOptionsResult.error) {
-          console.error('Error fetching sport options:', sportOptionsResult.error);
-          setFetchedSportOptions(fallbackSportOptions);
-          // Set default sport from fallback data
-          const allSportsOption = fallbackSportOptions.find(option => 
-            option.name.toLowerCase().includes('all') || option.id === 'all-sports'
-          );
-          if (allSportsOption) {
-            setSelectedSport(allSportsOption);
-          } else if (fallbackSportOptions.length > 0) {
-            setSelectedSport(fallbackSportOptions[0]);
-          }
-        } else if (sportOptionsResult.data) {
-          setFetchedSportOptions(sportOptionsResult.data);
-          // Update selected sport to match fetched data if needed
-          const allSportsOption = sportOptionsResult.data.find(option => 
-            option.name.toLowerCase().includes('all') || option.id === 'all-sports'
-          );
-          if (allSportsOption) {
-            setSelectedSport(allSportsOption);
-          } else if (sportOptionsResult.data.length > 0) {
-            setSelectedSport(sportOptionsResult.data[0]);
-          }
-        } else {
-          setFetchedSportOptions(fallbackSportOptions);
-          setSelectedSport(fallbackSportOptions.find(option => option.id === 'all-sports') || fallbackSportOptions[0]);
-        }
-
-        // Handle sport disciplines
-        if (sportDisciplinesResult.error) {
-          console.error('Error fetching sport disciplines:', sportDisciplinesResult.error);
-          setFetchedSportDisciplines(fallbackSportDisciplines);
-        } else if (sportDisciplinesResult.data) {
-          setFetchedSportDisciplines(sportDisciplinesResult.data);
-        } else {
-          setFetchedSportDisciplines(fallbackSportDisciplines);
-        }
-
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        // Use fallback data when there's a network or other error
-        setLocations(fallbackLocations);
-        setFetchedSportOptions(fallbackSportOptions);
-        setFetchedSportDisciplines(fallbackSportDisciplines);
-        setSelectedSport(fallbackSportOptions.find(option => option.id === 'all-sports') || fallbackSportOptions[0]);
-        setDataError('Failed to load data. Using fallback data.');
-      } finally {
-        setIsDataLoading(false);
-      }
+      // Use fallback data directly since Supabase is not configured
+      setLocations(fallbackLocations);
+      setFetchedSportOptions(fallbackSportOptions);
+      setFetchedSportDisciplines(fallbackSportDisciplines);
+      setSelectedSport(fallbackSportOptions.find(option => option.id === 'all-sports') || fallbackSportOptions[0]);
+      setIsDataLoading(false);
     };
 
     fetchData();
