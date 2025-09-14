@@ -146,6 +146,77 @@ export async function getAllTableStats(): Promise<SupabaseResponse<{ name: strin
   return { data: stats, error: null }
 }
 
+export async function getBookingItems(instructorId?: string, startDate?: string, endDate?: string): Promise<SupabaseResponse<any[]>> {
+  const supabase = getSupabaseClient()
+  if (!supabase) {
+    return { data: null, error: new Error('Supabase not configured') }
+  }
+
+  try {
+    let query = supabase
+      .from('booking_items')
+      .select(`
+        id,
+        booking_id,
+        booking_slot_id,
+        day_slot_id,
+        date,
+        start_time,
+        end_time,
+        total_minutes,
+        hourly_rate,
+        offer_id,
+        created_at,
+        bookings!inner(instructor_id, customer_id, start_date, end_date)
+      `)
+
+    // Filter by instructor if provided
+    if (instructorId) {
+      query = query.eq('bookings.instructor_id', instructorId)
+    }
+
+    // Filter by date range if provided
+    if (startDate) {
+      query = query.gte('date', startDate)
+    }
+    if (endDate) {
+      query = query.lte('date', endDate)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      return { data: null, error }
+    }
+
+    return { data: data || [], error: null }
+  } catch (error) {
+    return { data: null, error: error as Error }
+  }
+}
+
+export async function getInstructors(): Promise<SupabaseResponse<any[]>> {
+  const supabase = getSupabaseClient()
+  if (!supabase) {
+    return { data: null, error: new Error('Supabase not configured') }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('instructors')
+      .select('id, first_name, last_name')
+      .limit(10)
+
+    if (error) {
+      return { data: null, error }
+    }
+
+    return { data: data || [], error: null }
+  } catch (error) {
+    return { data: null, error: error as Error }
+  }
+}
+
 export async function testConnection(): Promise<SupabaseResponse<boolean>> {
   const supabase = getSupabaseClient()
   if (!supabase) {
