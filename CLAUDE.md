@@ -26,22 +26,44 @@ This is a Next.js 15 application showcasing Aceternity UI components with compre
 
 ### Data Architecture & Supabase Integration
 
-**Critical Pattern**: The application uses a **graceful fallback system** for Supabase integration:
+**🚨 CRITICAL PATTERN - ALWAYS USE API ENDPOINTS FOR DATA FETCHING**
 
+**RULE**: For all Supabase data fetching, use API endpoints with service role keys instead of direct client-side calls.
+
+**✅ CORRECT - Use API Endpoints**:
+```typescript
+// ✅ GOOD: Use API endpoints (bypasses RLS with service role)
+const response = await fetch('/api/calendar/instructors')
+const result = await response.json()
+const instructors = result.data
+
+const response = await fetch(`/api/calendar/bookings?instructorId=${id}&startDate=${start}&endDate=${end}`)
+const result = await response.json()
+const bookings = result.data
+```
+
+**❌ INCORRECT - Direct Client Calls**:
+```typescript
+// ❌ BAD: Direct client calls (blocked by RLS)
+import { getInstructors, getBookingItems } from '@/lib/supabase/database'
+const { data } = await getInstructors() // This will fail due to RLS
+const { data } = await getBookingItems() // This will fail due to RLS
+```
+
+**Why This Matters**:
+- Client-side Supabase calls are subject to Row Level Security (RLS)
+- API endpoints use service role keys that bypass RLS
+- This pattern ensures consistent data access across the application
+
+**Available API Endpoints**:
+- `/api/calendar/instructors` - Get all instructors
+- `/api/calendar/bookings?instructorId=X&startDate=Y&endDate=Z` - Get booking items
+
+**Graceful Fallback System** (for non-critical features):
 - **Environment-aware**: Automatically detects missing Supabase credentials and uses fallback data
 - **Typed responses**: All database functions return `{ data, error }` structure consistently
 - **Error boundary**: Functions check `if (!supabase)` before database calls
 - **Development workflow**: Uses `src/lib/fallback-data.ts` when Supabase isn't configured
-
-**Database Functions Pattern** (`src/lib/supabase/database.ts`):
-```typescript
-export async function getLocations() {
-  if (!supabase) {
-    return { data: null, error: new Error('Supabase not configured') };
-  }
-  // Actual Supabase call...
-}
-```
 
 **Component Integration Pattern** (`src/components/raven/enhanced-raven-landing.tsx`):
 ```typescript

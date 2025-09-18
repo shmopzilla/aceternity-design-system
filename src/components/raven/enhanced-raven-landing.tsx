@@ -607,25 +607,109 @@ export default function EnhancedRavenLanding() {
         {/* ======================================== */}
         <div className="flex gap-6 items-start justify-center relative w-full">
           {/* ======================================== */}
-          {/* STEP 1: DOWNLOAD APP */}
-          {/* Exact Figma layout and positioning */}
+          {/* STEP 1: TELL US WHERE YOU'RE GOING */}
+          {/* Destination carousel matching Figma design */}
           {/* ======================================== */}
           <StepCard
             stepNumber="01"
-            title="Download the Raven App"
-            description="Your Key to Reimagining Travel."
+            title="Tell us where you're going"
+            description="Elite instruction awaits at Europe's most coveted ski destinations."
           >
-            {/* Icon Container - Exact Figma positioning */}
-            <div className="absolute left-[82.954px] top-0 grid grid-cols-[max-content] grid-rows-[max-content] place-items-start">
-              {/* Icon Background */}
-              <div className="bg-[#222225] rounded-2xl w-[119.092px] h-[119.092px]" />
-              {/* Raven Emblem - Exact positioning */}
-              <motion.div 
-                className="absolute left-[35.051px] top-[33.235px] w-[48.992px] h-[52.621px] overflow-hidden"
-                whileHover={{ rotate: 5 }}
-              >
-                <img src="/assets/logos/raven-emblem.svg" alt="Raven Emblem" className="w-full h-full" />
-              </motion.div>
+            {/* Destination Carousel Container - Exact Figma positioning */}
+            <div className="absolute left-[35px] top-0 w-[286px]">
+              {/* Card Row - Horizontal scrollable container */}
+              <div className="bg-zinc-800 flex gap-[12.73px] items-center justify-start overflow-x-auto overflow-y-clip px-[19.1px] py-2 rounded-[30px] w-full">
+                {/* Courchevel 1850 Card */}
+                <div className="flex flex-col gap-[12.73px] items-start justify-start shrink-0 w-[128.915px]">
+                  <div
+                    className="bg-[#d9d9d9] bg-cover bg-center flex gap-[7.958px] h-[159.951px] items-center justify-start p-[12.73px] rounded-[12px] w-full relative"
+                    style={{ backgroundImage: `url(/assets/images/ski-bg-1.png)` }}
+                  >
+                    <div className="basis-0 grow h-full min-h-px min-w-px rounded-tl-[9.549px] rounded-tr-[9.549px] shrink-0 relative">
+                      <div className="absolute border-[1.592px_1.592px_0px] border-solid border-white inset-0 pointer-events-none rounded-tl-[9.549px] rounded-tr-[9.549px]" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-[1.592px] items-start justify-start w-full">
+                    <div className="flex gap-[6.366px] items-center justify-start w-full">
+                      <div className="w-[14.324px] h-[14.324px] shrink-0">
+                        <img src="/assets/logos/raven-emblem.svg" alt="FR" className="w-full h-full" />
+                      </div>
+                      <div className="font-['Archivo'] font-medium text-[12.73px] text-white tracking-[0.0636px] leading-[15.915px] shrink-0">
+                        Courchevel 1850
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Meribel Card */}
+                <div className="flex flex-col gap-[12.73px] items-start justify-start shrink-0 w-[128.915px]">
+                  <div
+                    className="bg-[#d9d9d9] bg-cover bg-center flex gap-[7.958px] h-[159.951px] items-center justify-start p-[12.73px] rounded-[12px] w-full relative"
+                    style={{ backgroundImage: `url(/assets/images/ski-bg-2.png)` }}
+                  >
+                    <div className="basis-0 grow h-full min-h-px min-w-px rounded-tl-[9.549px] rounded-tr-[9.549px] shrink-0 relative">
+                      <div className="absolute border-[1.592px_1.592px_0px] border-solid border-white inset-0 pointer-events-none rounded-tl-[9.549px] rounded-tr-[9.549px]" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-[1.592px] items-start justify-start w-full">
+                    <div className="flex gap-[6.366px] items-center justify-start w-full">
+                      <div className="w-[14.324px] h-[14.324px] shrink-0">
+                        <img src="/assets/logos/raven-emblem.svg" alt="FR" className="w-full h-full" />
+                      </div>
+                      <div className="font-['Archivo'] font-medium text-[12.73px] text-white tracking-[0.0636px] leading-[15.915px] shrink-0">
+                        Meribel
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tignes Card */}
+                <div className="flex flex-col gap-[12.73px] items-start justify-start shrink-0 w-[128.915px]">
+                  <div
+                    className="bg-[#d9d9d9] bg-cover bg-center flex gap-[7.958px] h-[159.951px] items-center justify-start p-[12.73px] rounded-[12px] w-full relative"
+                    style={{ backgroundImage: `url(/assets/images/ski-bg-3.png)` }}
+                  >
+                    <div className="basis-0 grow h-full min-h-px min-w-px rounded-tl-[9.549px] rounded-tr-[9.549px] shrink-0 relative">
+                      <div className="absolute border-[1.592px_1.592px_0px] border-solid border-white inset-0 pointer-events-none rounded-tl-[9.549px] rounded-tr-[9.549px]" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-[1.592px] items-start justify-start w-full">
+                    <div className="flex gap-[6.366px] items-center justify-start w-full">
+                      <div className="w-[14.324px] h-[14.324px] shrink-0">
+                        <img src="/assets/logos/raven-emblem.svg" alt="FR" className="w-full h-full" />
+                      </div>
+                      <div className="font-['Archivo'] font-medium text-[12.73px] text-white tracking-[0.0636px] leading-[15.915px] shrink-0">
+                        Tignes
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Avoriaz Card */}
+                <div className="flex flex-col gap-[12.73px] items-start justify-start shrink-0 w-[128.915px]">
+                  <div
+                    className="bg-[#d9d9d9] bg-cover bg-center flex gap-[7.958px] h-[159.951px] items-center justify-start p-[12.73px] rounded-[12px] w-full relative"
+                    style={{ backgroundImage: `url(/assets/images/ski-bg-4.png)` }}
+                  >
+                    <div className="basis-0 grow h-full min-h-px min-w-px rounded-tl-[9.549px] rounded-tr-[9.549px] shrink-0 relative">
+                      <div className="absolute border-[1.592px_1.592px_0px] border-solid border-white inset-0 pointer-events-none rounded-tl-[9.549px] rounded-tr-[9.549px]" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-[1.592px] items-start justify-start w-full">
+                    <div className="flex gap-[6.366px] items-center justify-start w-full">
+                      <div className="w-[14.324px] h-[14.324px] shrink-0">
+                        <img src="/assets/logos/raven-emblem.svg" alt="FR" className="w-full h-full" />
+                      </div>
+                      <div className="font-['Archivo'] font-medium text-[12.73px] text-white tracking-[0.0636px] leading-[15.915px] shrink-0">
+                        Avoriaz
+                      </div>
+                    </div>
+                    <div className="font-['Archivo'] font-light text-[#d5d5d6] text-[11.14px] tracking-[0.0557px] leading-[14.324px] w-full">
+                      Average price €180/ph
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </StepCard>
 
@@ -667,40 +751,120 @@ export default function EnhancedRavenLanding() {
           </StepCard>
 
           {/* ======================================== */}
-          {/* STEP 3: RESERVE ADVENTURE */}
-          {/* Exact Figma layout and positioning */}
+          {/* STEP 3: LOCK IT IN */}
+          {/* Booking interface matching Figma design */}
           {/* ======================================== */}
           <StepCard
             stepNumber="03"
-            title="Reserve Your Next Adventure"
-            description="In just a few taps, your journey begins."
+            title="Lock it in"
+            description="Secure your preferred times and instructors before they're gone. Download our app to manage your booking on the go."
           >
-            {/* Button Container - Exact Figma positioning */}
-            <div className="absolute left-[34.952px] top-0 grid grid-cols-[max-content] grid-rows-[max-content] place-items-start">
-              {/* Telemark Skiing - Checked state */}
-              <div className="absolute left-4 top-[80.236px] bg-[#222225] flex gap-3 h-[50px] items-center justify-start overflow-hidden px-5 py-3 rounded-lg w-[198px]">
-                <div className="bg-white rounded w-4 h-4 flex items-center justify-center">
-                  <img src="/assets/icons/checkmark.svg" alt="Check" className="w-3 h-3" />
-                </div>
-                <span className="text-white text-sm font-medium font-archivo tracking-[0.07px] leading-[1.4]">Telemark Skiing</span>
-              </div>
-              
-              {/* Off-Piste Skiing - Unchecked state */}
-              <div className="absolute left-[16.013px] top-0 flex h-[50.621px] items-center justify-center w-[198.082px]">
-                <div className="rotate-[359.87deg]">
-                  <div className="bg-[#222225] flex gap-3 h-[50.172px] items-center justify-start overflow-hidden px-5 py-3 rounded-lg shadow-[2px_2px_50px_0px_rgba(0,0,0,0.5)] w-[197.97px]">
-                    <div className="bg-[#313135] overflow-hidden rounded w-4 h-4" />
-                    <span className="text-white text-sm font-medium font-archivo tracking-[0.07px] leading-[1.4]">Off-Piste Skiing</span>
+            {/* Booking Container - Exact Figma positioning */}
+            <div className="absolute left-[20px] top-0 w-[316px] h-[224px] flex flex-col gap-3 items-center justify-center">
+              {/* Booking Card */}
+              <div className="backdrop-blur-[10px] bg-zinc-800 flex flex-col gap-2 items-start justify-start p-3 rounded-[12px] w-full">
+                {/* Instructor Name Row */}
+                <div className="flex gap-2 items-center justify-start w-full">
+                  <div className="flex gap-2 items-center justify-start flex-1">
+                    {/* Instructor Photo */}
+                    <div
+                      className="w-5 h-5 rounded-full bg-cover bg-center shrink-0"
+                      style={{ backgroundImage: `url(/assets/images/instructor-1.png)` }}
+                    />
+                    {/* Instructor Name */}
+                    <div className="font-['PP_Editorial_New'] text-white text-[16px] tracking-[0.08px] leading-[18px] shrink-0">
+                      Jono
+                    </div>
+                  </div>
+                  {/* Arrow Icon */}
+                  <div className="w-4 h-4 shrink-0">
+                    <svg className="w-full h-full text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
                   </div>
                 </div>
-              </div>
-              
-              {/* Ski Touring - Checked state */}
-              <div className="absolute left-0 top-[41.236px] bg-[#222225] flex gap-3 h-[50px] items-center justify-start overflow-hidden px-5 py-3 rounded-lg shadow-[2px_2px_50px_0px_rgba(0,0,0,0.5)] w-[199px]">
-                <div className="bg-white rounded w-4 h-4 flex items-center justify-center">
-                  <img src="/assets/icons/checkmark.svg" alt="Check" className="w-3 h-3" />
+
+                {/* Date and Status Row */}
+                <div className="flex items-center justify-between w-full">
+                  {/* Start Date */}
+                  <div className="flex flex-col items-start justify-start">
+                    <div className="font-['Archivo'] font-light text-[#cbcbd2] text-[12px] tracking-[0.06px] leading-[16px]">
+                      Start
+                    </div>
+                    <div className="font-['Archivo'] text-white text-[14px] tracking-[0.07px] leading-[18px]">
+                      10 Feb
+                    </div>
+                  </div>
+
+                  {/* Confirmed Badge */}
+                  <div className="backdrop-blur-[10px] bg-[#01270d] flex gap-1 h-5 items-center justify-center px-2 py-2 rounded-[8px]">
+                    <span className="font-['Archivo'] font-medium text-[#8cfbaf] text-[12px] tracking-[0.06px] leading-[16px]">
+                      Confirmed
+                    </span>
+                  </div>
+
+                  {/* End Date */}
+                  <div className="flex flex-col items-start justify-start">
+                    <div className="font-['Archivo'] font-light text-[#cbcbd2] text-[12px] tracking-[0.06px] leading-[16px]">
+                      End
+                    </div>
+                    <div className="font-['Archivo'] text-white text-[14px] tracking-[0.07px] leading-[18px]">
+                      26 Feb
+                    </div>
+                  </div>
                 </div>
-                <span className="text-white text-sm font-medium font-archivo tracking-[0.07px] leading-[1.4]">Ski Touring</span>
+
+                {/* Divider */}
+                <div className="w-full h-0 border-t border-white/10" />
+
+                {/* Metadata Row */}
+                <div className="flex gap-4 items-center justify-start w-full">
+                  {/* Snowboarding */}
+                  <div className="flex gap-1 items-center justify-start">
+                    <div className="w-3 h-3">
+                      <img src="/assets/icons/snowboarding.png" alt="Snowboarding" className="w-full h-full" />
+                    </div>
+                    <span className="font-['Archivo'] font-light text-white text-[14px] tracking-[0.07px] leading-[18px]">
+                      Snowboarding
+                    </span>
+                  </div>
+
+                  {/* Location */}
+                  <div className="flex gap-1 items-center justify-start">
+                    <div className="w-3 h-3">
+                      <svg className="w-full h-full text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="font-['Archivo'] font-light text-white text-[14px] tracking-[0.07px] leading-[18px]">
+                      Meribel
+                    </span>
+                  </div>
+
+                  {/* Participants */}
+                  <div className="flex gap-1 items-center justify-start">
+                    <div className="w-3 h-3">
+                      <svg className="w-full h-full text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                      </svg>
+                    </div>
+                    <span className="font-['Archivo'] font-light text-white text-[14px] tracking-[0.07px] leading-[18px]">
+                      3
+                    </span>
+                  </div>
+
+                  {/* Duration */}
+                  <div className="flex gap-1 items-center justify-start">
+                    <div className="w-3 h-3">
+                      <svg className="w-full h-full text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="font-['Archivo'] font-light text-white text-[14px] tracking-[0.07px] leading-[18px]">
+                      4 days
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </StepCard>

@@ -233,15 +233,11 @@ export function Calendar({
   return (
     <div
       className={cn(
-        "relative",
+        "flex flex-col gap-6 w-full",
         className
       )}
       data-name="calendar-component"
     >
-      <div
-        className="absolute content-stretch flex flex-col gap-6 sm:h-96 h-auto items-start justify-start left-1/2 -translate-x-1/2 -translate-y-1/2 sm:w-[30rem] w-full max-w-lg p-4"
-        style={{ top: "50%" }}
-      >
         {/* Month Header */}
         <div className="flex items-center justify-between w-full">
           <motion.button
@@ -354,7 +350,6 @@ export function Calendar({
             ))}
           </motion.div>
         </AnimatePresence>
-      </div>
     </div>
   )
 }
