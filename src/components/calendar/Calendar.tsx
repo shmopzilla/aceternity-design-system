@@ -22,6 +22,11 @@ export function Calendar({
     endDate: null
   })
 
+  // Clear selections when selection mode changes
+  useEffect(() => {
+    setSelectedRange({ startDate: null, endDate: null })
+  }, [selectionMode])
+
   // Generate calendar days for the current month view
   const calendarDays = useMemo(() => {
     const days: CalendarDayData[] = []
@@ -197,6 +202,7 @@ export function Calendar({
     if (!selectedRange.startDate) {
       // First click - set start date
       setSelectedRange({ startDate: date, endDate: null })
+      onRangeSelect?.(date, null) // Notify parent that selection started
     } else if (!selectedRange.endDate) {
       // Second click - set end date
       const startDate = new Date(selectedRange.startDate)
@@ -218,6 +224,7 @@ export function Calendar({
     } else {
       // Third click - reset and start new selection
       setSelectedRange({ startDate: date, endDate: null })
+      onRangeSelect?.(date, null) // Notify parent that new selection started
     }
   }, [selectionMode, selectedRange, onDayClick, onRangeSelect])
 

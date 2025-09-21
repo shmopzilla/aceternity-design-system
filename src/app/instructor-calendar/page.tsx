@@ -27,6 +27,9 @@ export default function InstructorCalendarPage() {
   const [selectedStartDate, setSelectedStartDate] = useState<string | null>(null)
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null)
   const [selectedDaysCount, setSelectedDaysCount] = useState(0)
+  const [selectionMode, setSelectionMode] = useState<'single' | 'range'>('range')
+  const [instructorResorts, setInstructorResorts] = useState<any[]>([])
+  const [loadingResorts, setLoadingResorts] = useState(false)
 
   // Fetch all instructors via API on page load
   useEffect(() => {
@@ -140,9 +143,51 @@ export default function InstructorCalendarPage() {
     fetchInstructorPricing()
   }, [selectedInstructorId])
 
+  // Fetch instructor resorts when instructor changes
+  useEffect(() => {
+    async function fetchInstructorResorts() {
+      if (!selectedInstructorId) {
+        console.log('No instructor selected, skipping resorts fetch')
+        return
+      }
+
+      console.log('Fetching instructor resorts via API for instructor:', selectedInstructorId)
+      setLoadingResorts(true)
+
+      try {
+        const url = `/api/calendar/instructor-resorts?instructorId=${selectedInstructorId}`
+        const response = await fetch(url)
+        const result = await response.json()
+        console.log('API Instructor resorts result:', result)
+
+        if (!response.ok) {
+          console.error('API Failed to fetch instructor resorts:', JSON.stringify(result))
+          setInstructorResorts([])
+        } else {
+          console.log('Found instructor resorts via API:', result.data)
+          setInstructorResorts(result.data || [])
+        }
+      } catch (err: any) {
+        console.error('Error fetching instructor resorts via API:', err)
+        setInstructorResorts([])
+      } finally {
+        setLoadingResorts(false)
+      }
+    }
+
+    fetchInstructorResorts()
+  }, [selectedInstructorId])
+
   const handleInstructorChange = (instructorId: string) => {
     setSelectedInstructorId(instructorId)
   }
+
+  // Clear selections when selection mode changes
+  useEffect(() => {
+    setSelectedStartDate(null)
+    setSelectedEndDate(null)
+    setSelectedDaysCount(0)
+  }, [selectionMode])
 
   // Calculate number of days between two dates
   const calculateDays = (start: string, end: string) => {
@@ -161,10 +206,16 @@ export default function InstructorCalendarPage() {
     setSelectedDaysCount(1)
   }
 
-  const handleRangeSelect = (startDate: string, endDate: string) => {
+  const handleRangeSelect = (startDate: string, endDate: string | null) => {
     console.log('Range selected:', startDate, 'to', endDate)
     setSelectedStartDate(startDate)
     setSelectedEndDate(endDate)
+
+    // If endDate is null, it means we're starting a new selection - hide the button
+    if (endDate === null) {
+      setSelectedDaysCount(0)
+      return
+    }
 
     // Check if it's a single day selection (same start and end date)
     if (startDate === endDate) {
@@ -217,12 +268,156 @@ export default function InstructorCalendarPage() {
       {/* Main Content - with top padding to account for fixed header */}
       <div className="pt-20 min-h-screen flex items-center justify-center">
         {/* Main Content Container */}
-        <div className="flex items-start gap-8">
-          {/* Instructor Avatar */}
-          <div className="flex-shrink-0">
-            <InstructorAvatar
-              instructor={instructors.find(i => i.id === selectedInstructorId)}
-            />
+        <div className="flex items-start gap-8 max-w-[1280px] w-full px-6">
+          {/* Instructor Avatar and Info */}
+          <div className="flex-1 flex flex-col gap-10">
+            {/* Profile Area */}
+            <div className="flex items-center gap-3">
+              <InstructorAvatar
+                instructor={instructors.find(i => i.id === selectedInstructorId)}
+              />
+              {/* Instructor Name and Age */}
+              {instructors.find(i => i.id === selectedInstructorId) && (
+              <div className="flex flex-col gap-1">
+                <div className="flex items-baseline gap-2">
+                  <div
+                    style={{
+                      color: 'var(--Colors-Text-Main, #FFF)',
+                      fontFamily: '"PP Editorial New"',
+                      fontSize: '36px',
+                      fontStyle: 'normal',
+                      fontWeight: 400,
+                      lineHeight: '140%',
+                      letterSpacing: '0.18px'
+                    }}
+                  >
+                    {instructors.find(i => i.id === selectedInstructorId)?.first_name}
+                  </div>
+                  {instructors.find(i => i.id === selectedInstructorId)?.date_of_birth && (
+                    <div
+                      style={{
+                        color: '#919191',
+                        fontFamily: 'Archivo',
+                        fontSize: '30px',
+                        fontStyle: 'normal',
+                        fontWeight: 300,
+                        lineHeight: '140%',
+                        letterSpacing: '0.15px'
+                      }}
+                    >
+                      {(() => {
+                        const instructor = instructors.find(i => i.id === selectedInstructorId);
+                        if (instructor?.date_of_birth) {
+                          const birthDate = new Date(instructor.date_of_birth);
+                          const today = new Date();
+                          let age = today.getFullYear() - birthDate.getFullYear();
+                          const monthDiff = today.getMonth() - birthDate.getMonth();
+                          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                            age--;
+                          }
+                          return age;
+                        }
+                        return '';
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Instructor Location */}
+                {instructorResorts.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M21 10C21 18 12 23 12 23C12 23 3 18 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" fill="url(#paint0_linear_207_2104)"/>
+                      <path d="M12 14C14.2091 14 16 12.2091 16 10C16 7.79086 14.2091 6 12 6C9.79086 6 8 7.79086 8 10C8 12.2091 9.79086 14 12 14Z" fill="url(#paint1_linear_207_2104)"/>
+                      <defs>
+                        <linearGradient id="paint0_linear_207_2104" x1="12" y1="1.085" x2="12" y2="22.874" gradientUnits="userSpaceOnUse">
+                          <stop stopColor="#FF4867"/>
+                          <stop offset="1" stopColor="#E50031"/>
+                        </linearGradient>
+                        <linearGradient id="paint1_linear_207_2104" x1="12" y1="6.021" x2="12" y2="13.979" gradientUnits="userSpaceOnUse">
+                          <stop stopColor="#F2F2F2"/>
+                          <stop offset="1" stopColor="#DBDBDB"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div
+                      style={{
+                        color: '#FFF',
+                        fontFamily: 'Archivo',
+                        fontSize: '20px',
+                        fontStyle: 'normal',
+                        fontWeight: 400,
+                        lineHeight: '140%',
+                        letterSpacing: '0.1px'
+                      }}
+                    >
+                      {instructorResorts[0].name}
+                    </div>
+                    {instructorResorts.length > 1 && (
+                      <div
+                        className="relative group"
+                      >
+                        <div
+                          className="px-2 py-1 bg-white rounded-full text-xs text-black font-medium cursor-help"
+                          style={{
+                            fontFamily: 'Archivo',
+                            fontSize: '12px',
+                            fontWeight: 500
+                          }}
+                        >
+                          +{instructorResorts.length - 1}
+                        </div>
+                        {/* Tooltip */}
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-black/90 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                          <div className="flex flex-col gap-1">
+                            {instructorResorts.slice(1).map((resort, index) => (
+                              <div key={resort.id || index}>{resort.name}</div>
+                            ))}
+                          </div>
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-black/90"></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                </div>
+              )}
+            </div>
+
+            {/* About Section */}
+            {instructors.find(i => i.id === selectedInstructorId) && (
+              <div className="flex flex-col gap-4 w-full">
+                <h3
+                  style={{
+                    color: '#FFF',
+                    fontFamily: 'var(--type-font-family-headers, Archivo)',
+                    fontSize: 'var(--font-size-display-h5, 20px)',
+                    fontStyle: 'normal',
+                    fontWeight: 500,
+                    lineHeight: 'var(--line-height-display-h5, 24px)',
+                    letterSpacing: '0.1px'
+                  }}
+                >
+                  About {instructors.find(i => i.id === selectedInstructorId)?.first_name}
+                </h3>
+                {/* Instructor Biography */}
+                {instructors.find(i => i.id === selectedInstructorId)?.biography && (
+                  <p
+                    style={{
+                      color: 'var(--Colors-Text-Subtle, #D5D5D6)',
+                      fontFamily: 'Archivo',
+                      fontSize: 'var(--Font-Size-md, 16px)',
+                      fontStyle: 'normal',
+                      fontWeight: 300,
+                      lineHeight: '140%',
+                      letterSpacing: '0.08px'
+                    }}
+                  >
+                    {instructors.find(i => i.id === selectedInstructorId)?.biography}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Calendar Container - Fixed width 485px */}
@@ -234,7 +429,7 @@ export default function InstructorCalendarPage() {
               padding: '32px',
               flexDirection: 'column',
               alignItems: 'flex-start',
-              gap: '40px',
+              gap: '28px',
               borderRadius: '12px',
               border: '1px solid rgba(255, 255, 255, 0.10)',
               background: 'rgba(255, 255, 255, 0.05)',
@@ -292,7 +487,7 @@ export default function InstructorCalendarPage() {
                 bookingItems={bookingItems}
                 onDayClick={handleDayClick}
                 onRangeSelect={handleRangeSelect}
-                selectionMode="range"
+                selectionMode={selectionMode}
                 className="w-full"
               />
             )}

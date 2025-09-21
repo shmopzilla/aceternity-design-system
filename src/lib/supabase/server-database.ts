@@ -194,6 +194,68 @@ export async function getInstructorOffersServer(instructorId: string): Promise<S
   }
 }
 
+export async function getInstructorResorts(instructorId: string) {
+  console.log('Server: Fetching resorts for instructor:', instructorId)
+
+  try {
+    // First, get all offer IDs for this instructor
+    const { data: offers, error: offersError } = await supabaseServer
+      .from('instructor_offers')
+      .select('id')
+      .eq('instructor_id', instructorId)
+
+    if (offersError) {
+      console.error('Server: Error fetching instructor offers:', offersError)
+      return { data: null, error: offersError.message }
+    }
+
+    if (!offers || offers.length === 0) {
+      console.log('Server: No offers found for instructor:', instructorId)
+      return { data: [], error: null }
+    }
+
+    const offerIds = offers.map(offer => offer.id)
+    console.log('Server: Found offer IDs:', offerIds)
+
+    // Now get resorts for these offers
+    const { data, error } = await supabaseServer
+      .from('instructor_offer_resorts')
+      .select(`
+        resort_id,
+        resorts!inner(
+          id,
+          name
+        )
+      `)
+      .in('offer_id', offerIds)
+
+    if (error) {
+      console.error('Server: Error fetching instructor resorts:', error)
+      return { data: null, error: error.message }
+    }
+
+    console.log('Server: Raw resorts data:', data)
+
+    // Transform the data to return unique resort information
+    const uniqueResorts = new Map()
+    data?.forEach(item => {
+      uniqueResorts.set(item.resorts.id, {
+        id: item.resorts.id,
+        name: item.resorts.name
+      })
+    })
+
+    const resorts = Array.from(uniqueResorts.values())
+    console.log('Server: Processed unique resorts:', resorts)
+
+    return { data: resorts, error: null }
+
+  } catch (err: any) {
+    console.error('Server: Unexpected error in getInstructorResorts:', err)
+    return { data: null, error: err.message }
+  }
+}
+
 export async function getInstructorDisciplinesServer(instructorId: string): Promise<SupabaseResponse<any[]>> {
   try {
     console.log('Server: Fetching disciplines for instructor:', instructorId)
